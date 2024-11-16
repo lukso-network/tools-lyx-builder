@@ -24,13 +24,18 @@ const provider = providerObject
 export async function supportsInterface(
   contractAddress: string,
   interfaceId: string
-): Promise<boolean> {
+): Promise {
   if (!provider) {
     console.error('Provider not available.');
     return false;
   }
-  const contract = new ethers.Contract(contractAddress, erc165ABI, provider);
+
+  if ((await provider.getCode(contractAddress)) == '0x') {
+    return false;
+  }
+
   try {
+    const contract = new ethers.Contract(contractAddress, erc165ABI, provider);
     return await contract.supportsInterface(interfaceId);
   } catch (error) {
     console.error('Error checking interface support:', error);
